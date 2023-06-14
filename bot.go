@@ -49,7 +49,7 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 
 		// if isGroupEvent(event) {
 		if gptMsg != "" {
-			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容找不到："+gptMsg+" 經過解釋:"+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
+			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容:\n message \n 找不到。 \n"+message+" 經過解釋:"+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
 				log.Print(err)
 			}
 		} else {
