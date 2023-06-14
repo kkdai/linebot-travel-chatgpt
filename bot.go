@@ -42,14 +42,14 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 		var gptMsg = ""
 		//找不到的時候，把原來問題帶回去問一次。
 		if len(poi.Pois) == 0 {
-			gptMsg = gptCompleteContext(message)
+			gptMsg = gptCompleteContext(message + ", 根據以上訊息請推薦我相關的景點（以台灣為優先)。")
 			keyword, reply = gptFuncCall(gptMsg)
 			poi = handlePOIResponse([]byte(reply))
 		}
 
 		// if isGroupEvent(event) {
 		if gptMsg != "" {
-			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容:\n message \n 找不到。 \n"+message+" 經過解釋:"+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
+			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容:\n "+message+"\n 找不到。 \n 經過解釋:\n"+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
 				log.Print(err)
 			}
 		} else {
