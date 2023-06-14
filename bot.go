@@ -42,7 +42,7 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 		var gptMsg = ""
 		//找不到的時候，把原來問題帶回去問一次。
 		if len(poi.Pois) == 0 {
-			gptMsg = gptCompleteContext(message + ", 根據以上訊息請推薦我相關的景點（以台灣為優先)。")
+			gptMsg = gptCompleteContext("你是一個想要去旅遊的人，你根據以下的對話，改成對於旅遊專員的問句。 有台灣的景點比較好，五十字以內。 \n----\n" + message)
 			keyword, reply = gptFuncCall(gptMsg)
 			poi = handlePOIResponse([]byte(reply))
 		}
