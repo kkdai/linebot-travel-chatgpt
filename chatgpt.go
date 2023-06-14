@@ -163,7 +163,7 @@ func OpenAIChatFuncCall(requestBody map[string]interface{}) ([]byte, error) {
 		return nil, fmt.Errorf("Failed to create HTTP request: %s", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth(":", apiKey)
+	req.SetBasicAuth("", apiKey)
 
 	client := &http.Client{}
 	response, err := client.Do(req)
