@@ -47,28 +47,28 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 			poi = handlePOIResponse([]byte(reply))
 		}
 
-		if isGroupEvent(event) {
-			if gptMsg != "" {
-				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容找不到："+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
-					log.Print(err)
-				}
-			} else {
-				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
-					log.Print(err)
-				}
+		// if isGroupEvent(event) {
+		if gptMsg != "" {
+			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容找不到："+gptMsg+" 經過解釋:"+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
+				log.Print(err)
 			}
 		} else {
-			carousel := getPOIsCarouseTemplate(poi)
-			if gptMsg != "" {
-				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容找不到："+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply), linebot.NewTemplateMessage("圖示", carousel)).Do(); err != nil {
-					log.Print(err)
-				}
-			} else {
-				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply), linebot.NewTemplateMessage("圖示", carousel)).Do(); err != nil {
-					log.Print(err)
-				}
+			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
+				log.Print(err)
 			}
 		}
+		// } else {
+		// 	carousel := getPOIsCarouseTemplate(poi)
+		// 	if gptMsg != "" {
+		// 		if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容找不到："+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply), linebot.NewTemplateMessage("圖示", carousel)).Do(); err != nil {
+		// 			log.Print(err)
+		// 		}
+		// 	} else {
+		// 		if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply), linebot.NewTemplateMessage("圖示", carousel)).Do(); err != nil {
+		// 			log.Print(err)
+		// 		}
+		// 	}
+		// }
 	}
 }
 
