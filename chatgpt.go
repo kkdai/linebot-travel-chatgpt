@@ -1,13 +1,57 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 
 	"github.com/sashabaranov/go-openai"
 	gpt3 "github.com/sashabaranov/go-openai"
 )
+
+type SearchPOIRequest struct {
+	Keyword string `json:"keyword"`
+}
+
+type ResponsePOI struct {
+	Pois []struct {
+		PoiURL     string   `json:"poiURL"`
+		CoverPhoto string   `json:"coverPhoto"`
+		Name       string   `json:"name"`
+		Nickname   []string `json:"nickname"`
+	} `json:"pois"`
+}
+
+func SearchPOI(keyword string) string {
+	url := "https://nextjs-chatgpt-plugin-starter.vercel.app/api/get-poi"
+
+	data := &SearchPOIRequest{Keyword: keyword}
+	reqBody, err := json.Marshal(data)
+	if err != nil {
+		log.Printf("Error while marshalling data: %v", err)
+		return ""
+	}
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.Printf("Error while making the request: %v", err)
+		return ""
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Failed to read response body: %s\n", err)
+		return ""
+	}
+
+	return string(bodyBytes)
+}
 
 func gptCompleteContext(ori string) (ret string) {
 	// Get the context.
