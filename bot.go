@@ -28,9 +28,9 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 			case *linebot.TextMessage:
 				// Directly to ChatGPT
 				if strings.Contains(message.Text, ":gpt") {
+					prompt := fmt.Sprintf(PromptFormat, message.Text)
+					handleGPT(GPT_FunctionCall, event, prompt)
 				}
-				prompt := fmt.Sprintf(PromptFormat, message.Text)
-				handleGPT(GPT_Complete, event, prompt)
 			}
 		}
 	}
