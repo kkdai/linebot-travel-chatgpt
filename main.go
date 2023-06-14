@@ -24,6 +24,7 @@ import (
 
 var bot *linebot.Client
 var client *gpt3.Client
+var apiKey string
 
 type GPT_ACTIONS int
 
@@ -40,7 +41,7 @@ func main() {
 	log.Println("Bot:", bot, " err:", err)
 
 	port := os.Getenv("PORT")
-	apiKey := os.Getenv("ChatGptToken")
+	apiKey = os.Getenv("ChatGptToken")
 
 	if apiKey != "" {
 		client = gpt3.NewClient(apiKey)

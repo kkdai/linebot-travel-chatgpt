@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	gpt3 "github.com/sashabaranov/go-openai"
 )
@@ -152,7 +151,7 @@ func handleFuncCallResponse(responseJSON []byte) ChatCompletionResponse {
 
 func OpenAIChatFuncCall(requestBody map[string]interface{}) ([]byte, error) {
 	url := "https://api.openai.com/v1/chat/completions"
-	apiKey := os.Getenv("ChatGptToken")
+	apiKey := apiKey
 
 	jsonValue, err := json.Marshal(requestBody)
 	if err != nil {
