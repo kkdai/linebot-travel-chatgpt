@@ -39,9 +39,15 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 	case GPT_FunctionCall:
 		keyword, reply := gptFuncCall(message)
 		poi := handlePOIResponse([]byte(reply))
-		carousel := getPOIsCarouseTemplate(poi)
-		if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply), linebot.NewTemplateMessage("圖示", carousel)).Do(); err != nil {
-			log.Print(err)
+		if isGroupEvent(event) {
+			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
+				log.Print(err)
+			}
+		} else {
+			carousel := getPOIsCarouseTemplate(poi)
+			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply), linebot.NewTemplateMessage("圖示", carousel)).Do(); err != nil {
+				log.Print(err)
+			}
 		}
 	}
 }
