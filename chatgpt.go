@@ -14,6 +14,30 @@ import (
 	gpt3 "github.com/sashabaranov/go-openai"
 )
 
+type ChatCompletionResponse struct {
+	ID      string `json:"id"`
+	Object  string `json:"object"`
+	Created int64  `json:"created"`
+	Model   string `json:"model"`
+	Choices []struct {
+		Index   int `json:"index"`
+		Message struct {
+			Role         string      `json:"role"`
+			Content      interface{} `json:"content"`
+			FunctionCall struct {
+				Name      string `json:"name"`
+				Arguments string `json:"arguments"`
+			} `json:"function_call"`
+		} `json:"message"`
+		FinishReason string `json:"finish_reason"`
+	} `json:"choices"`
+	Usage struct {
+		PromptTokens     int `json:"prompt_tokens"`
+		CompletionTokens int `json:"completion_tokens"`
+		TotalTokens      int `json:"total_tokens"`
+	} `json:"usage"`
+}
+
 type SearchPOIRequest struct {
 	Keyword string `json:"keyword"`
 }
@@ -102,4 +126,77 @@ func gptImageCreate(prompt string) (string, error) {
 	fmt.Println(respUrl.Data[0].URL)
 
 	return respUrl.Data[0].URL, nil
+}
+
+func handleFuncCall(responseJSON []byte) ChatCompletionResponse {
+	var response ChatCompletionResponse
+	err := json.Unmarshal([]byte(responseJSON), &response)
+	if err != nil {
+		fmt.Printf("Failed to unmarshal JSON: %s\n", err)
+		return ChatCompletionResponse{}
+	}
+	return response
+}
+
+func OpenAIChatFuncCall(requestBody map[string]interface{}) (string, error) {
+	url := "https://api.openai.com/v1/chat/completions"
+	apiKey := "YOUR_OPENAI_API_KEY"
+
+	jsonValue, err := json.Marshal(requestBody)
+	if err != nil {
+		return "", fmt.Errorf("Failed to marshal JSON: %s", err)
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonValue))
+	if err != nil {
+		return "", fmt.Errorf("Failed to create HTTP request: %s", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.SetBasicAuth(":", apiKey)
+
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("HTTP request failed: %s", err)
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", fmt.Errorf("Failed to read response body: %s", err)
+	}
+
+	return string(body), nil
+}
+
+func getQueryString(msg string) map[string]interface{} {
+	return map[string]interface{}{
+		"model": "gpt-3.5-turbo-0613",
+		"messages": []map[string]interface{}{
+			{
+				"role":    "user",
+				"content": msg,
+			},
+		},
+		"functions": []map[string]interface{}{
+			{
+				"name":        "search_poi",
+				"description": "Get the keyword about travel information",
+				"parameters": map[string]interface{}{
+					"type": "object",
+					"properties": map[string]interface{}{
+						"keyword": map[string]interface{}{
+							"type":        "string",
+							"description": "The city and state, e.g. San Francisco, CA",
+						},
+						"unit": map[string]interface{}{
+							"type": "string",
+							"enum": []string{"celsius", "fahrenheit"},
+						},
+					},
+					"required": []string{"keyword"},
+				},
+			},
+		},
+	}
 }
