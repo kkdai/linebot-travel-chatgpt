@@ -37,8 +37,9 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 	switch action {
 	case GPT_FunctionCall:
-		reply := gptFuncCall(message)
-		if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(reply)).Do(); err != nil {
+		keyword, reply := gptFuncCall(message)
+
+		if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
 			log.Print(err)
 		}
 	}
@@ -56,4 +57,10 @@ func getGroupID(event *linebot.Event) string {
 	}
 
 	return ""
+}
+
+func sendCarouselMessage(event *linebot.Event, template *linebot.CarouselTemplate, altText string) {
+	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(altText, template)).Do(); err != nil {
+		log.Println(err)
+	}
 }

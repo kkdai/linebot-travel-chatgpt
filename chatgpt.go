@@ -108,13 +108,13 @@ func gptCompleteContext(ori string) (ret string) {
 	return ret
 }
 
-func gptFuncCall(msg string) (ret string) {
+func gptFuncCall(msg string) (keyword string, ret string) {
 	var result []byte
 	var err error
 	log.Println("getQueryString:", getQueryString(msg))
 	if result, err = OpenAIChatFuncCall(getQueryString(msg)); err != nil {
 		log.Println("OpenAIChatFuncCall fail:", err)
-		return ""
+		return "", ""
 	}
 	log.Println("OpenAIChatFuncCall result:", string(result))
 	catResponse := handleFuncCallResponse(result)
@@ -122,11 +122,11 @@ func gptFuncCall(msg string) (ret string) {
 
 	// Call 3rd party API
 	if len(catResponse.Choices) == 0 {
-		return "資料有誤，請重新查詢"
+		return "無 keyword", "資料有誤，請重新查詢"
 	}
 	log.Println("Arguments:", catResponse.Choices[0].Message.FunctionCall.Arguments)
 	arg := handleArgument([]byte(catResponse.Choices[0].Message.FunctionCall.Arguments))
-	return SearchPOI(arg.Keyword)
+	return arg.Keyword, SearchPOI(arg.Keyword)
 }
 
 func handleArgument(responseJSON []byte) Arguments {
