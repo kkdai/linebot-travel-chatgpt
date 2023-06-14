@@ -39,14 +39,34 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 	case GPT_FunctionCall:
 		keyword, reply := gptFuncCall(message)
 		poi := handlePOIResponse([]byte(reply))
+		var gptMsg = ""
+		//找不到的時候，把原來問題帶回去問一次。
+		if len(poi.Pois) == 0 {
+			gptMsg = gptCompleteContext(message)
+			keyword, reply = gptFuncCall(message)
+			poi = handlePOIResponse([]byte(reply))
+		}
+
 		if isGroupEvent(event) {
-			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
-				log.Print(err)
+			if gptMsg != "" {
+				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容找不到："+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
+					log.Print(err)
+				}
+			} else {
+				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
+					log.Print(err)
+				}
 			}
 		} else {
 			carousel := getPOIsCarouseTemplate(poi)
-			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply), linebot.NewTemplateMessage("圖示", carousel)).Do(); err != nil {
-				log.Print(err)
+			if gptMsg != "" {
+				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容找不到："+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply), linebot.NewTemplateMessage("圖示", carousel)).Do(); err != nil {
+					log.Print(err)
+				}
+			} else {
+				if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply), linebot.NewTemplateMessage("圖示", carousel)).Do(); err != nil {
+					log.Print(err)
+				}
 			}
 		}
 	}
