@@ -43,7 +43,7 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 		//找不到的時候，把原來問題帶回去問一次。
 		if len(poi.Pois) == 0 {
 			gptMsg = gptCompleteContext(message)
-			keyword, reply = gptFuncCall(message)
+			keyword, reply = gptFuncCall(gptMsg)
 			poi = handlePOIResponse([]byte(reply))
 		}
 
