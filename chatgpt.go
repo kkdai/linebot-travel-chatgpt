@@ -112,10 +112,12 @@ func gptCompleteContext(ori string) (ret string) {
 func gptFuncCall(msg string) (ret string) {
 	var result []byte
 	var err error
+	log.Println("getQueryString:", getQueryString(msg))
 	if result, err = OpenAIChatFuncCall(getQueryString(msg)); err != nil {
 		log.Println("OpenAIChatFuncCall fail:", err)
 		return ""
 	}
+	log.Println("OpenAIChatFuncCall result:", result)
 	catResponse := handleFuncCallResponse(result)
 	log.Println("catResponse:", catResponse)
 
