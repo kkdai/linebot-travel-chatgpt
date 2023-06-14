@@ -28,9 +28,10 @@ var client *gpt3.Client
 type GPT_ACTIONS int
 
 const (
-	GPT_Complete GPT_ACTIONS = 0
-	GPT_Draw     GPT_ACTIONS = 1
-	GPT_Whister  GPT_ACTIONS = 2
+	GPT_Complete     GPT_ACTIONS = 0
+	GPT_Draw         GPT_ACTIONS = 1
+	GPT_Whister      GPT_ACTIONS = 2
+	GPT_FunctionCall GPT_ACTIONS = 3
 )
 
 func main() {

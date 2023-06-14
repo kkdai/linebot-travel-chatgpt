@@ -13,6 +13,10 @@ import (
 	gpt3 "github.com/sashabaranov/go-openai"
 )
 
+type Arguments struct {
+	Keyword string `json:"keyword"`
+}
+
 type ChatCompletionResponse struct {
 	ID      string `json:"id"`
 	Object  string `json:"object"`
@@ -105,7 +109,33 @@ func gptCompleteContext(ori string) (ret string) {
 	return ret
 }
 
-func handleFuncCall(responseJSON []byte) ChatCompletionResponse {
+func gptFuncCall(msg string) (ret string) {
+	var result []byte
+	var err error
+	if result, err = OpenAIChatFuncCall(getQueryString(msg)); err != nil {
+		log.Println("OpenAIChatFuncCall fail:", err)
+		return ""
+	}
+	catResponse := handleFuncCallResponse(result)
+	log.Println("catResponse:", catResponse)
+
+	// Call 3rd party API
+	log.Println("Arguments:", catResponse.Choices[0].Message.FunctionCall.Arguments)
+	arg := handleArgument([]byte(catResponse.Choices[0].Message.FunctionCall.Arguments))
+	return SearchPOI(arg.Keyword)
+}
+
+func handleArgument(responseJSON []byte) Arguments {
+	var response Arguments
+	err := json.Unmarshal([]byte(responseJSON), &response)
+	if err != nil {
+		fmt.Printf("Failed to unmarshal JSON: %s\n", err)
+		return Arguments{}
+	}
+	return response
+}
+
+func handleFuncCallResponse(responseJSON []byte) ChatCompletionResponse {
 	var response ChatCompletionResponse
 	err := json.Unmarshal([]byte(responseJSON), &response)
 	if err != nil {
@@ -115,18 +145,18 @@ func handleFuncCall(responseJSON []byte) ChatCompletionResponse {
 	return response
 }
 
-func OpenAIChatFuncCall(requestBody map[string]interface{}) (string, error) {
+func OpenAIChatFuncCall(requestBody map[string]interface{}) ([]byte, error) {
 	url := "https://api.openai.com/v1/chat/completions"
 	apiKey := os.Getenv("ChatGptToken")
 
 	jsonValue, err := json.Marshal(requestBody)
 	if err != nil {
-		return "", fmt.Errorf("Failed to marshal JSON: %s", err)
+		return nil, fmt.Errorf("Failed to marshal JSON: %s", err)
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonValue))
 	if err != nil {
-		return "", fmt.Errorf("Failed to create HTTP request: %s", err)
+		return nil, fmt.Errorf("Failed to create HTTP request: %s", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.SetBasicAuth(":", apiKey)
@@ -134,16 +164,16 @@ func OpenAIChatFuncCall(requestBody map[string]interface{}) (string, error) {
 	client := &http.Client{}
 	response, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("HTTP request failed: %s", err)
+		return nil, fmt.Errorf("HTTP request failed: %s", err)
 	}
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return "", fmt.Errorf("Failed to read response body: %s", err)
+		return nil, fmt.Errorf("Failed to read response body: %s", err)
 	}
 
-	return string(body), nil
+	return body, nil
 }
 
 func getQueryString(msg string) map[string]interface{} {
