@@ -4,13 +4,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
-	"github.com/sashabaranov/go-openai"
 	gpt3 "github.com/sashabaranov/go-openai"
 )
 
@@ -106,28 +105,6 @@ func gptCompleteContext(ori string) (ret string) {
 	return ret
 }
 
-// Create image by DALL-E 2
-func gptImageCreate(prompt string) (string, error) {
-	ctx := context.Background()
-
-	// Sample image by link
-	reqUrl := openai.ImageRequest{
-		Prompt:         prompt,
-		Size:           openai.CreateImageSize512x512,
-		ResponseFormat: openai.CreateImageResponseFormatURL,
-		N:              1,
-	}
-
-	respUrl, err := client.CreateImage(ctx, reqUrl)
-	if err != nil {
-		fmt.Printf("Image creation error: %v\n", err)
-		return "", errors.New("Image creation error")
-	}
-	fmt.Println(respUrl.Data[0].URL)
-
-	return respUrl.Data[0].URL, nil
-}
-
 func handleFuncCall(responseJSON []byte) ChatCompletionResponse {
 	var response ChatCompletionResponse
 	err := json.Unmarshal([]byte(responseJSON), &response)
@@ -140,7 +117,7 @@ func handleFuncCall(responseJSON []byte) ChatCompletionResponse {
 
 func OpenAIChatFuncCall(requestBody map[string]interface{}) (string, error) {
 	url := "https://api.openai.com/v1/chat/completions"
-	apiKey := "YOUR_OPENAI_API_KEY"
+	apiKey := os.Getenv("ChatGptToken")
 
 	jsonValue, err := json.Marshal(requestBody)
 	if err != nil {
