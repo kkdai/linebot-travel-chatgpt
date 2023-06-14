@@ -40,18 +40,7 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 		if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(reply)).Do(); err != nil {
 			log.Print(err)
 		}
-	case GPT_Draw:
-		if reply, err := gptImageCreate(message); err != nil {
-			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("無法正確顯示圖形.")).Do(); err != nil {
-				log.Print(err)
-			}
-		} else {
-			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("根據你的提示，畫出以下圖片："), linebot.NewImageMessage(reply, reply)).Do(); err != nil {
-				log.Print(err)
-			}
-		}
 	}
-
 }
 
 func isGroupEvent(event *linebot.Event) bool {
