@@ -117,11 +117,14 @@ func gptFuncCall(msg string) (ret string) {
 		log.Println("OpenAIChatFuncCall fail:", err)
 		return ""
 	}
-	log.Println("OpenAIChatFuncCall result:", result)
+	log.Println("OpenAIChatFuncCall result:", string(result))
 	catResponse := handleFuncCallResponse(result)
 	log.Println("catResponse:", catResponse)
 
 	// Call 3rd party API
+	if len(catResponse.Choices) == 0 {
+		return "資料有誤，請重新查詢"
+	}
 	log.Println("Arguments:", catResponse.Choices[0].Message.FunctionCall.Arguments)
 	arg := handleArgument([]byte(catResponse.Choices[0].Message.FunctionCall.Arguments))
 	return SearchPOI(arg.Keyword)

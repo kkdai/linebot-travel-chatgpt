@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -28,8 +27,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 			case *linebot.TextMessage:
 				// Directly to ChatGPT
 				if strings.Contains(message.Text, ":gpt") {
-					prompt := fmt.Sprintf(PromptFormat, message.Text)
-					handleGPT(GPT_FunctionCall, event, prompt)
+					handleGPT(GPT_FunctionCall, event, message.Text)
 				}
 			}
 		}
