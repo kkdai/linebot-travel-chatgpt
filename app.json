@@ -1,7 +1,7 @@
 {
   "name": "ChatGPT LINE Bot Template",
   "description": "Using ChatGPT API to build LINE Bot.",
-  "repository": "https://github.com/kkdai/linebot-chatgpt-template",
+  "repository": "https://github.com/kkdai/linebot-travel-chatgpt",
   "keywords": [
     "Line",
     "go",

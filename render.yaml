@@ -1,6 +1,6 @@
 services:
 - type: web
-  name: linebot-chatgpt-template
+  name: linebot-travel-chatgpt
   env: go
   buildCommand: go build -o app
   startCommand: ./app

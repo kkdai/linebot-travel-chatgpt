@@ -1,7 +1,7 @@
 ChatGPT LINE Bot Template
 ==============
 
-[![GoDoc](https://godoc.org/github.com/kkdai/linebot-chatgpt-template.svg?status.svg)](https://godoc.org/github.com/kkdai/linebot-chatgpt-template)  ![Go](https://github.com/kkdai/linebot-chatgpt-template/workflows/Go/badge.svg) [![goreportcard.com](https://goreportcard.com/badge/github.com/kkdai/linebot-chatgpt-template)](https://goreportcard.com/report/github.com/kkdai/LineBotTemplate)
+[![GoDoc](https://godoc.org/github.com/kkdai/linebot-travel-chatgpt.svg?status.svg)](https://godoc.org/github.com/kkdai/linebot-travel-chatgpt)  ![Go](https://github.com/kkdai/linebot-travel-chatgpt/workflows/Go/badge.svg) [![goreportcard.com](https://goreportcard.com/badge/github.com/kkdai/linebot-travel-chatgpt)](https://goreportcard.com/report/github.com/kkdai/LineBotTemplate)
 
 How to use this
 =============

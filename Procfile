@@ -1,2 +1,2 @@
-web: linebot-chatgpt-template
+web: linebot-travel-chatgpt
 

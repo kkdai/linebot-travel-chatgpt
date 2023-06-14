@@ -1,4 +1,4 @@
-module github.com/kkdai/linebot-chatgpt-template
+module github.com/kkdai/linebot-travel-chatgpt
 
 // +heroku goVersion go1.20
 go 1.20
