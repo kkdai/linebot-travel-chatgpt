@@ -129,6 +129,16 @@ func gptFuncCall(msg string) (keyword string, ret string) {
 	return arg.Keyword, SearchPOI(arg.Keyword)
 }
 
+func handlePOIResponse(responseJSON []byte) ResponsePOI {
+	var response ResponsePOI
+	err := json.Unmarshal([]byte(responseJSON), &response)
+	if err != nil {
+		fmt.Printf("Failed to unmarshal JSON: %s\n", err)
+		return ResponsePOI{}
+	}
+	return response
+}
+
 func handleArgument(responseJSON []byte) Arguments {
 	var response Arguments
 	err := json.Unmarshal([]byte(responseJSON), &response)

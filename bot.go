@@ -38,8 +38,9 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 	switch action {
 	case GPT_FunctionCall:
 		keyword, reply := gptFuncCall(message)
-
-		if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
+		poi := handlePOIResponse([]byte(reply))
+		carousel := getPOIsCarouseTemplate(poi)
+		if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply), linebot.NewTemplateMessage("圖示", carousel)).Do(); err != nil {
 			log.Print(err)
 		}
 	}
@@ -63,4 +64,25 @@ func sendCarouselMessage(event *linebot.Event, template *linebot.CarouselTemplat
 	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(altText, template)).Do(); err != nil {
 		log.Println(err)
 	}
+}
+
+func getPOIsCarouseTemplate(records ResponsePOI) (template *linebot.CarouselTemplate) {
+	if len(records.Pois) == 0 {
+		log.Println("err1")
+		return nil
+	}
+
+	columnList := []*linebot.CarouselColumn{}
+	for _, result := range records.Pois {
+		// Title's hard limit by Line
+		tmpColumn := linebot.NewCarouselColumn(
+			result.CoverPhoto,
+			result.Name,
+			result.Nickname[0],
+			linebot.NewURIAction("👉 點我打開", result.PoiURL),
+		)
+		columnList = append(columnList, tmpColumn)
+	}
+	template = linebot.NewCarouselTemplate(columnList...)
+	return template
 }
