@@ -28,6 +28,9 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 				// Directly to ChatGPT
 				if isGroupEvent(event) && strings.Contains(message.Text, ":gpt") {
 					handleGPT(GPT_FunctionCall, event, message.Text)
+				} else {
+					//1:1 direct go gpt
+					handleGPT(GPT_FunctionCall, event, message.Text)
 				}
 			}
 		}
