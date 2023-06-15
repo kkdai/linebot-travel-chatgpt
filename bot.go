@@ -26,7 +26,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 			// Handle only on text message
 			case *linebot.TextMessage:
 				// Directly to ChatGPT
-				if strings.Contains(message.Text, ":gpt") {
+				if isGroupEvent(event) && strings.Contains(message.Text, ":gpt") {
 					handleGPT(GPT_FunctionCall, event, message.Text)
 				}
 			}
