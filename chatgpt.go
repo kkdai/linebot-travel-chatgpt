@@ -40,45 +40,6 @@ type ChatCompletionResponse struct {
 	} `json:"usage"`
 }
 
-type SearchPOIRequest struct {
-	Keyword string `json:"keyword"`
-}
-
-type ResponsePOI struct {
-	Pois []struct {
-		PoiURL     string   `json:"poiURL"`
-		CoverPhoto string   `json:"coverPhoto"`
-		Name       string   `json:"name"`
-		Nickname   []string `json:"nickname"`
-	} `json:"pois"`
-}
-
-func SearchPOI(keyword string) string {
-	url := "https://nextjs-chatgpt-plugin-starter.vercel.app/api/get-poi"
-
-	data := &SearchPOIRequest{Keyword: keyword}
-	reqBody, err := json.Marshal(data)
-	if err != nil {
-		log.Printf("Error while marshalling data: %v", err)
-		return ""
-	}
-
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
-	if err != nil {
-		log.Printf("Error while making the request: %v", err)
-		return ""
-	}
-	defer resp.Body.Close()
-
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Printf("Failed to read response body: %s\n", err)
-		return ""
-	}
-
-	return string(bodyBytes)
-}
-
 func gptCompleteContext(ori string) (ret string) {
 	// Get the context.
 	ctx := context.Background()
@@ -126,37 +87,8 @@ func gptFuncCall(msg string) (keyword string, ret string) {
 	}
 	log.Println("Arguments:", catResponse.Choices[0].Message.FunctionCall.Arguments)
 	arg := handleArgument([]byte(catResponse.Choices[0].Message.FunctionCall.Arguments))
-	return arg.Keyword, SearchPOI(arg.Keyword)
-}
-
-func handlePOIResponse(responseJSON []byte) ResponsePOI {
-	var response ResponsePOI
-	err := json.Unmarshal([]byte(responseJSON), &response)
-	if err != nil {
-		fmt.Printf("Failed to unmarshal JSON: %s\n", err)
-		return ResponsePOI{}
-	}
-	return response
-}
-
-func handleArgument(responseJSON []byte) Arguments {
-	var response Arguments
-	err := json.Unmarshal([]byte(responseJSON), &response)
-	if err != nil {
-		fmt.Printf("Failed to unmarshal JSON: %s\n", err)
-		return Arguments{}
-	}
-	return response
-}
-
-func handleFuncCallResponse(responseJSON []byte) ChatCompletionResponse {
-	var response ChatCompletionResponse
-	err := json.Unmarshal([]byte(responseJSON), &response)
-	if err != nil {
-		fmt.Printf("Failed to unmarshal JSON: %s\n", err)
-		return ChatCompletionResponse{}
-	}
-	return response
+	poiResult, _ := SearchPOI(arg.Keyword)
+	return arg.Keyword, string(poiResult)
 }
 
 func OpenAIChatFuncCall(requestBody map[string]interface{}) ([]byte, error) {
