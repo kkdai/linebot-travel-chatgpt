@@ -66,7 +66,7 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 				Type:     linebot.FlexContainerTypeCarousel,
 				Contents: flexBuble,
 			}
-			flexMsg := linebot.NewFlexMessage("景點", flexContainerObj)
+			flexMsg := linebot.NewFlexMessage("旅遊小幫手幫你推薦的景點", flexContainerObj)
 
 			if _, err := bot.ReplyMessage(event.ReplyToken, flexMsg).Do(); err != nil {
 				log.Print(err)
