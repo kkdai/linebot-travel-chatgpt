@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -33,4 +34,12 @@ func handleFuncCallResponse(responseJSON []byte) ChatCompletionResponse {
 		return ChatCompletionResponse{}
 	}
 	return response
+}
+
+func interfaceToString(val interface{}) (string, error) {
+	str, ok := val.(string)
+	if !ok {
+		return "", errors.New("the interface value is not a string")
+	}
+	return str, nil
 }

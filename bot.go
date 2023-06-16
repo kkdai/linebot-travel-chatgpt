@@ -72,11 +72,15 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 				log.Println("OpenAIChatFuncCall getSummaryString fail:", err)
 				return
 			}
-
 		}
 
+		log.Println("OpenAIChatFuncCall getSummaryString result:", string(summary))
+		catResponse := handleFuncCallResponse(summary)
+		log.Println("getSummaryString catResponse:", catResponse)
+		sumMsg, _ := interfaceToString(catResponse.Choices[0].Message.Content)
+
 		if gptMsg != "" {
-			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(string(summary))).Do(); err != nil {
+			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(sumMsg)).Do(); err != nil {
 				log.Print(err)
 			}
 		} else {
@@ -89,7 +93,7 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 			}
 			flexMsg := linebot.NewFlexMessage(ALT_TRAVEL_FLEX, flexContainerObj)
 
-			if _, err := bot.ReplyMessage(event.ReplyToken, flexMsg, linebot.NewTextMessage(string(summary))).Do(); err != nil {
+			if _, err := bot.ReplyMessage(event.ReplyToken, flexMsg, linebot.NewTextMessage(sumMsg)).Do(); err != nil {
 				log.Print(err)
 
 				if out, err := json.Marshal(flexContainerObj); err != nil {
