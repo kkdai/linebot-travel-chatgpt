@@ -103,7 +103,7 @@ func getPOIsFlexBubble(records ResponsePOI) []*linebot.BubbleContainer {
 
 	var columnList []*linebot.BubbleContainer
 	for _, result := range records.Pois {
-		log.Println("Add flex:", result.Name, result.Nickname[0], result.CoverPhoto)
+		log.Println("Add flex:", result.Name, result.CoverPhoto)
 		name := linebot.TextComponent{
 			Type:   linebot.FlexComponentTypeText,
 			Text:   result.Name,
@@ -112,9 +112,13 @@ func getPOIsFlexBubble(records ResponsePOI) []*linebot.BubbleContainer {
 			Wrap:   true,
 		}
 
+		nickN := ""
+		if len(result.Nickname) > 0 {
+			nickN = result.Nickname[0]
+		}
 		nickName := linebot.TextComponent{
 			Type:   linebot.FlexComponentTypeText,
-			Text:   result.Nickname[0],
+			Text:   nickN,
 			Weight: linebot.FlexTextWeightTypeBold,
 			Size:   linebot.FlexTextSizeTypeSm,
 			Wrap:   true,
