@@ -113,7 +113,7 @@ func getPOIsFlexBubble(records ResponsePOI) []*linebot.BubbleContainer {
 
 	var columnList []*linebot.BubbleContainer
 	for _, result := range records.Pois {
-		log.Println("Add flex:", result.Name, result.CoverPhoto)
+		log.Println("Add flex:", result.Name, result.CoverPhoto, result.PoiURL)
 		name := linebot.TextComponent{
 			Type:   linebot.FlexComponentTypeText,
 			Text:   result.Name,
@@ -134,8 +134,16 @@ func getPOIsFlexBubble(records ResponsePOI) []*linebot.BubbleContainer {
 			Wrap:   true,
 		}
 
+		btn := linebot.ButtonComponent{
+			Type: linebot.FlexComponentTypeButton,
+			Action: &linebot.URIAction{
+				Label: "action",
+				URI:   result.PoiURL,
+			},
+		}
+
 		var boxBody []linebot.FlexComponent
-		boxBody = append(boxBody, &name, &nickName)
+		boxBody = append(boxBody, &name, &nickName, &btn)
 
 		// Title's hard limit by Line
 		tmpColumn := linebot.BubbleContainer{
