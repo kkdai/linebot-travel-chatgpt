@@ -59,9 +59,18 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 				log.Print(err)
 			}
 		} else {
-			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
+
+			flexBuble := getPOIsFlexBubble(poi)
+			flex := linebot.NewFlexMessage("景點", &linebot.CarouselContainer{
+				Type:     linebot.FlexContainerTypeCarousel,
+				Contents: flexBuble,
+			})
+			if _, err := bot.ReplyMessage(event.ReplyToken, flex).Do(); err != nil {
 				log.Print(err)
 			}
+			// if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
+			// 	log.Print(err)
+			// }
 		}
 		// } else {
 		// 	carousel := getPOIsCarouseTemplate(poi)
@@ -96,6 +105,56 @@ func sendCarouselMessage(event *linebot.Event, template *linebot.CarouselTemplat
 	if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTemplateMessage(altText, template)).Do(); err != nil {
 		log.Println(err)
 	}
+}
+
+func getPOIsFlexBubble(records ResponsePOI) []*linebot.BubbleContainer {
+	if len(records.Pois) == 0 {
+		log.Println("err1")
+		return nil
+	}
+
+	var columnList []*linebot.BubbleContainer
+	for _, result := range records.Pois {
+		name := linebot.TextComponent{
+			Type:   linebot.FlexComponentTypeText,
+			Text:   result.Name,
+			Weight: linebot.FlexTextWeightTypeBold,
+			Size:   linebot.FlexTextSizeTypeSm,
+			Wrap:   true,
+		}
+
+		nickName := linebot.TextComponent{
+			Type:   linebot.FlexComponentTypeText,
+			Text:   result.Nickname[0],
+			Weight: linebot.FlexTextWeightTypeBold,
+			Size:   linebot.FlexTextSizeTypeSm,
+			Wrap:   true,
+		}
+
+		var boxBody []linebot.FlexComponent
+		boxBody = append(boxBody, &name, &nickName)
+
+		// Title's hard limit by Line
+		tmpColumn := linebot.BubbleContainer{
+			Type: linebot.FlexContainerTypeBubble,
+			Size: linebot.FlexBubbleSizeTypeMicro,
+			Hero: &linebot.ImageComponent{
+				Type:        linebot.FlexComponentTypeImage,
+				URL:         result.CoverPhoto,
+				Size:        linebot.FlexImageSizeTypeFull,
+				AspectRatio: linebot.FlexImageAspectRatioType1to1,
+				AspectMode:  linebot.FlexImageAspectModeTypeCover,
+			},
+			Body: &linebot.BoxComponent{
+				Type:     linebot.FlexComponentTypeBox,
+				Layout:   linebot.FlexBoxLayoutTypeVertical,
+				Contents: boxBody,
+			},
+		}
+
+		columnList = append(columnList, &tmpColumn)
+	}
+	return columnList
 }
 
 func getPOIsCarouseTemplate(records ResponsePOI) (template *linebot.CarouselTemplate) {
