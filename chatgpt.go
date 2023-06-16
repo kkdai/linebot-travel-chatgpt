@@ -149,3 +149,43 @@ func getQueryString(msg string) map[string]interface{} {
 		},
 	}
 }
+
+func getSummaryString(msg, arg, result string) map[string]interface{} {
+	return map[string]interface{}{
+		"model": "gpt-3.5-turbo-0613",
+		"messages": []map[string]interface{}{
+			{
+				"role":    "user",
+				"content": msg,
+			},
+			{
+				"role":    "assistant",
+				"content": nil,
+				"function_call": map[string]interface{}{
+					"name":      "search_poi",
+					"arguments": arg,
+				},
+			},
+			{
+				"role":    "function",
+				"content": result,
+			},
+		},
+		"functions": []map[string]interface{}{
+			{
+				"name":        "search_poi",
+				"description": "Get the keyword about travel information",
+				"parameters": map[string]interface{}{
+					"type": "object",
+					"properties": map[string]interface{}{
+						"keyword": map[string]interface{}{
+							"type":        "string",
+							"description": "The city and state, e.g. San Francisco, CA",
+						},
+					},
+					"required": []string{"keyword"},
+				},
+			},
+		},
+	}
+}

@@ -51,18 +51,32 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 	switch action {
 	case GPT_FunctionCall:
 		message = strings.TrimPrefix(message, ":gpt")
-		keyword, reply := gptFuncCall(message)
-		poi := handlePOIResponse([]byte(reply))
+		keyword, poiJsonRet := gptFuncCall(message)
+		poi := handlePOIResponse([]byte(poiJsonRet))
 		var gptMsg = ""
+		var summary []byte
+		var err error
 		//找不到的時候，把原來問題帶回去問一次。
 		if len(poi.Pois) == 0 {
-			gptMsg = gptCompleteContext(PROMPT_NOT_FOUND + message)
-			keyword, reply = gptFuncCall(gptMsg)
-			poi = handlePOIResponse([]byte(reply))
+			// gptMsg = gptCompleteContext(PROMPT_NOT_FOUND + message)
+			// keyword, reply = gptFuncCall(gptMsg)
+			// poi = handlePOIResponse([]byte(reply))
+			gptMsg = "{}"
+			if summary, err = OpenAIChatFuncCall(getSummaryString(message, keyword, poiJsonRet)); err != nil {
+				log.Println("OpenAIChatFuncCall getSummaryString fail:", err)
+				return
+			}
+		} else {
+			// 有答案
+			if summary, err = OpenAIChatFuncCall(getSummaryString(message, keyword, poiJsonRet)); err != nil {
+				log.Println("OpenAIChatFuncCall getSummaryString fail:", err)
+				return
+			}
+
 		}
 
 		if gptMsg != "" {
-			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容:\n "+message+"\n 找不到。 \n 經過解釋:\n"+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
+			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(string(summary))).Do(); err != nil {
 				log.Print(err)
 			}
 		} else {
@@ -75,7 +89,7 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 			}
 			flexMsg := linebot.NewFlexMessage(ALT_TRAVEL_FLEX, flexContainerObj)
 
-			if _, err := bot.ReplyMessage(event.ReplyToken, flexMsg).Do(); err != nil {
+			if _, err := bot.ReplyMessage(event.ReplyToken, flexMsg, linebot.NewTextMessage(string(summary))).Do(); err != nil {
 				log.Print(err)
 
 				if out, err := json.Marshal(flexContainerObj); err != nil {
