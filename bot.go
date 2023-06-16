@@ -137,7 +137,7 @@ func getPOIsFlexBubble(records ResponsePOI) []*linebot.BubbleContainer {
 		btn := linebot.ButtonComponent{
 			Type: linebot.FlexComponentTypeButton,
 			Action: &linebot.URIAction{
-				Label: "action",
+				Label: "帶我去",
 				URI:   result.PoiURL,
 			},
 		}
