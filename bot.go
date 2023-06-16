@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
@@ -60,12 +61,21 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 		} else {
 			flexBuble := getPOIsFlexBubble(poi)
 			log.Println("Prepre FlexMsg")
-			flex := linebot.NewFlexMessage("景點", &linebot.CarouselContainer{
+
+			flexContainerObj := &linebot.CarouselContainer{
 				Type:     linebot.FlexContainerTypeCarousel,
 				Contents: flexBuble,
-			})
-			if _, err := bot.ReplyMessage(event.ReplyToken, flex).Do(); err != nil {
+			}
+			flexMsg := linebot.NewFlexMessage("景點", flexContainerObj)
+
+			if _, err := bot.ReplyMessage(event.ReplyToken, flexMsg).Do(); err != nil {
 				log.Print(err)
+
+				if out, err := json.Marshal(flexContainerObj); err != nil {
+					log.Println("Marshal error:", err)
+				} else {
+					log.Println("---\nflex\n---\n", string(out))
+				}
 			}
 			// if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
 			// 	log.Print(err)
