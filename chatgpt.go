@@ -168,6 +168,7 @@ func getSummaryString(msg, arg, result string) map[string]interface{} {
 			},
 			{
 				"role":    "function",
+				"name":    "search_poi",
 				"content": result,
 			},
 		},
