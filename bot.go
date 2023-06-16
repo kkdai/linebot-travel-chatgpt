@@ -146,12 +146,16 @@ func getPOIsFlexBubble(records ResponsePOI) []*linebot.BubbleContainer {
 		boxBody = append(boxBody, &name, &nickName, &btn)
 
 		// Title's hard limit by Line
+		coverPhoto := "https://www.salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled-1150x647.png"
+		if result.CoverPhoto != "" {
+			coverPhoto = result.CoverPhoto
+		}
 		tmpColumn := linebot.BubbleContainer{
 			Type: linebot.FlexContainerTypeBubble,
 			Size: linebot.FlexBubbleSizeTypeMicro,
 			Hero: &linebot.ImageComponent{
 				Type:        linebot.FlexComponentTypeImage,
-				URL:         result.CoverPhoto,
+				URL:         coverPhoto,
 				Size:        linebot.FlexImageSizeTypeFull,
 				AspectRatio: linebot.FlexImageAspectRatioType1to1,
 				AspectMode:  linebot.FlexImageAspectModeTypeCover,
