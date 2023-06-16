@@ -53,14 +53,13 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 			poi = handlePOIResponse([]byte(reply))
 		}
 
-		// if isGroupEvent(event) {
 		if gptMsg != "" {
 			if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容:\n "+message+"\n 找不到。 \n 經過解釋:\n"+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
 				log.Print(err)
 			}
 		} else {
-
 			flexBuble := getPOIsFlexBubble(poi)
+			log.Println("Prepre FlexMsg")
 			flex := linebot.NewFlexMessage("景點", &linebot.CarouselContainer{
 				Type:     linebot.FlexContainerTypeCarousel,
 				Contents: flexBuble,
@@ -72,18 +71,6 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 			// 	log.Print(err)
 			// }
 		}
-		// } else {
-		// 	carousel := getPOIsCarouseTemplate(poi)
-		// 	if gptMsg != "" {
-		// 		if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("原來內容找不到："+gptMsg), linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply), linebot.NewTemplateMessage("圖示", carousel)).Do(); err != nil {
-		// 			log.Print(err)
-		// 		}
-		// 	} else {
-		// 		if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply), linebot.NewTemplateMessage("圖示", carousel)).Do(); err != nil {
-		// 			log.Print(err)
-		// 		}
-		// 	}
-		// }
 	}
 }
 
@@ -108,6 +95,7 @@ func sendCarouselMessage(event *linebot.Event, template *linebot.CarouselTemplat
 }
 
 func getPOIsFlexBubble(records ResponsePOI) []*linebot.BubbleContainer {
+	log.Println("getPOIsFlexBubble")
 	if len(records.Pois) == 0 {
 		log.Println("err1")
 		return nil
@@ -115,6 +103,7 @@ func getPOIsFlexBubble(records ResponsePOI) []*linebot.BubbleContainer {
 
 	var columnList []*linebot.BubbleContainer
 	for _, result := range records.Pois {
+		log.Println("Add flex:", result.Name, result.Nickname[0], result.CoverPhoto)
 		name := linebot.TextComponent{
 			Type:   linebot.FlexComponentTypeText,
 			Text:   result.Name,
