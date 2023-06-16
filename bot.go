@@ -9,6 +9,12 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
+const (
+	IMG_NOT_FOUND    string = "https://www.salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled-1150x647.png"
+	ALT_TRAVEL_FLEX  string = "旅遊小幫手幫你推薦的景點"
+	PROMPT_NOT_FOUND string = "你是一個想要去旅遊的人，你根據以下的對話，推薦台灣的景點。 \n----\n"
+)
+
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	events, err := bot.ParseRequest(r)
 
@@ -44,12 +50,13 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 	switch action {
 	case GPT_FunctionCall:
+		message = strings.TrimPrefix(message, ":gpt")
 		keyword, reply := gptFuncCall(message)
 		poi := handlePOIResponse([]byte(reply))
 		var gptMsg = ""
 		//找不到的時候，把原來問題帶回去問一次。
 		if len(poi.Pois) == 0 {
-			gptMsg = gptCompleteContext("你是一個想要去旅遊的人，你根據以下的對話，改成對於旅遊專員的問句。 有台灣的景點比較好，五十字以內。 \n----\n" + message)
+			gptMsg = gptCompleteContext(PROMPT_NOT_FOUND + message)
 			keyword, reply = gptFuncCall(gptMsg)
 			poi = handlePOIResponse([]byte(reply))
 		}
@@ -66,7 +73,7 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 				Type:     linebot.FlexContainerTypeCarousel,
 				Contents: flexBuble,
 			}
-			flexMsg := linebot.NewFlexMessage("旅遊小幫手幫你推薦的景點", flexContainerObj)
+			flexMsg := linebot.NewFlexMessage(ALT_TRAVEL_FLEX, flexContainerObj)
 
 			if _, err := bot.ReplyMessage(event.ReplyToken, flexMsg).Do(); err != nil {
 				log.Print(err)
@@ -77,9 +84,6 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 					log.Println("---\nflex\n---\n", string(out))
 				}
 			}
-			// if _, err := bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("關鍵字："+keyword), linebot.NewTextMessage(reply)).Do(); err != nil {
-			// 	log.Print(err)
-			// }
 		}
 	}
 }
@@ -146,7 +150,7 @@ func getPOIsFlexBubble(records ResponsePOI) []*linebot.BubbleContainer {
 		boxBody = append(boxBody, &name, &nickName, &btn)
 
 		// Title's hard limit by Line
-		coverPhoto := "https://www.salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled-1150x647.png"
+		coverPhoto := IMG_NOT_FOUND
 		if result.CoverPhoto != "" {
 			coverPhoto = result.CoverPhoto
 		}
