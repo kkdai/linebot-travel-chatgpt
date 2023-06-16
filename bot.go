@@ -12,7 +12,7 @@ import (
 const (
 	IMG_NOT_FOUND    string = "https://www.salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled-1150x647.png"
 	ALT_TRAVEL_FLEX  string = "旅遊小幫手幫你推薦的景點"
-	PROMPT_NOT_FOUND string = "你是一個想要去旅遊的人，你根據以下的對話，推薦台灣的景點。 \n----\n"
+	PROMPT_NOT_FOUND string = "你是一個想要去旅行社的導遊，你根據以下的對話來推薦台灣行程，如果對話內容跟旅遊無關，請給予旅遊相關的建議。 \n----\n"
 )
 
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +62,7 @@ func handleGPT(action GPT_ACTIONS, event *linebot.Event, message string) {
 			// keyword, reply = gptFuncCall(gptMsg)
 			// poi = handlePOIResponse([]byte(reply))
 			gptMsg = "{}"
-			if summary, err = OpenAIChatFuncCall(getSummaryString(message, keyword, poiJsonRet)); err != nil {
+			if summary, err = OpenAIChatFuncCall(getSummaryString(PROMPT_NOT_FOUND+message, keyword, poiJsonRet)); err != nil {
 				log.Println("OpenAIChatFuncCall getSummaryString fail:", err)
 				return
 			}
