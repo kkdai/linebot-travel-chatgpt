@@ -112,7 +112,7 @@ func getPOIsFlexBubble(records ResponsePOI) []*linebot.BubbleContainer {
 			Wrap:   true,
 		}
 
-		nickN := ""
+		nickN := result.Name
 		if len(result.Nickname) > 0 {
 			nickN = result.Nickname[0]
 		}
