@@ -142,10 +142,6 @@ func getQueryString(msg string) map[string]interface{} {
 							"type":        "string",
 							"description": "The city and state, e.g. San Francisco, CA",
 						},
-						"unit": map[string]interface{}{
-							"type": "string",
-							"enum": []string{"celsius", "fahrenheit"},
-						},
 					},
 					"required": []string{"keyword"},
 				},
