@@ -1,22 +1,47 @@
-FROM golang:1.20-alpine AS builder
+# Copyright 2021 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-# Set the Current Working Directory inside the container
+# Use the offical golang image to create a binary.
+# This is based on Debian and sets the GOPATH to /go.
+# https://hub.docker.com/_/golang
+FROM golang:buster as builder
+
+# Create and change to the app directory.
 WORKDIR /app
 
-# Copy everything from the current directory to the PWD(Present Working Directory) inside the container
-COPY . .
-
-# Download all the dependencies
+# Retrieve application dependencies.
+# This allows the container build to reuse cached dependencies.
+# Expecting to copy go.mod and if present go.sum.
+COPY go.* ./
 RUN go mod download
 
-# Build the Go app
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+# Copy local code to the container image.
+COPY . ./
 
-# Start fresh from a smaller image
-FROM alpine:latest
+# Build the binary.
+RUN go build -mod=readonly -v -o server
 
-# Copy the Pre-built binary file from the previous stage
-COPY --from=builder /app/main /app/main
+# Use the official Debian slim image for a lean production container.
+# https://hub.docker.com/_/debian
+# https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
+FROM debian:buster-slim
+RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
-# Command to run the executable
-CMD ["/app/main"]
+# Copy the binary to the production image from the builder stage.
+COPY --from=builder /app/server /app/server
+
+# Run the web service on container startup.
+CMD ["/app/server"]
