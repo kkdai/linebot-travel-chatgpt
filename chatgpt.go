@@ -46,7 +46,7 @@ func gptCompleteContext(ori string) (ret string) {
 
 	// For more details about the API of Open AI Chat Completion: https://platform.openai.com/docs/guides/chat
 	req := gpt3.ChatCompletionRequest{
-		// Model: The GPT-3.5 turbo model is the most powerful model available.
+		// Model: The GPT4o turbo model is the most powerful model available.
 		Model: gpt3.GPT3Dot5Turbo,
 		// The message to complete.
 		Messages: []gpt3.ChatCompletionMessage{{
@@ -124,7 +124,7 @@ func OpenAIChatFuncCall(requestBody map[string]interface{}) ([]byte, error) {
 
 func getQueryString(msg string) map[string]interface{} {
 	return map[string]interface{}{
-		"model": "gpt-3.5-turbo-0613",
+		"model": "gpt-4o",
 		"messages": []map[string]interface{}{
 			{
 				"role":    "user",
@@ -152,7 +152,7 @@ func getQueryString(msg string) map[string]interface{} {
 
 func getSummaryString(msg, arg, result string) map[string]interface{} {
 	return map[string]interface{}{
-		"model": "gpt-3.5-turbo-0613",
+		"model": "gpt-4o",
 		"messages": []map[string]interface{}{
 			{
 				"role":    "user",
