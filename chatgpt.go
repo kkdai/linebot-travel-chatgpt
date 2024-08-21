@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 
@@ -40,6 +40,7 @@ type ChatCompletionResponse struct {
 	} `json:"usage"`
 }
 
+// gptCompleteContextHandle the response from the function call.
 func gptCompleteContext(ori string) (ret string) {
 	// Get the context.
 	ctx := context.Background()
@@ -114,7 +115,7 @@ func OpenAIChatFuncCall(requestBody map[string]interface{}) ([]byte, error) {
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to read response body: %s", err)
 	}
